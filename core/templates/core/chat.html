@@ -1,0 +1,22 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h3>Chat with {{ other_user.username }}</h3>
+<div id="messages" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px;"></div>
+<input id="msg" class="form-control my-2" placeholder="Type message...">
+<button id="send" class="btn btn-primary">Send</button>
+
+<script>
+const other = "{{ other_user.username }}";
+const socket = new WebSocket(`ws://${window.location.host}/ws/chat/${other}/`);
+socket.onmessage = (e) => {
+  const data = JSON.parse(e.data);
+  const box = document.getElementById("messages");
+  box.innerHTML += `<p><b>${data.sender}:</b> ${data.message}</p>`;
+};
+document.getElementById("send").onclick = () => {
+  const msg = document.getElementById("msg").value;
+  socket.send(JSON.stringify({message: msg, to: other}));
+  document.getElementById("msg").value = "";
+};
+</script>
+{% endblock %}
